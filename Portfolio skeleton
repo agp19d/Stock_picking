@@ -1,0 +1,33 @@
+# Load packages
+library(quantmod)
+library(dplyr)
+
+# Set tickers
+tickers <- c("F", "UA", "ORCL", "GE")
+
+# Set dates
+start <- as.Date("2015-07-01")
+end <- Sys.Date()
+
+# an empty environment to hold yahoo price data
+e <- new.env()
+
+# get historical data
+getSymbols(Symbols = tickers, from = start, to = end, src = "yahoo", env = e)
+
+# Get close data
+stocks <- do.call(what = "merge", args = eapply(env = e, FUN = Cl))
+
+
+# Get all possible combinations (aka weights)
+part <- partitions::compositions(n = 100, m = 4, include.zero = T)/100
+part <- matrix(part, ncol = 4, byrow = T)
+head(part)
+
+### Need to find a way to apply weights to portfolio
+### and figure out returns and volatility for each
+
+# Get weekly returns
+wkly <- weeklyReturn(stocks) + 1
+mean_rets <- mean(wkly)
+sd_rets <- sd(wkly)
